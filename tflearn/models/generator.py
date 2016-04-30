@@ -186,10 +186,11 @@ class SequenceGenerator(object):
         sequence = seq_seed
         whole_sequence = seq_seed
 
-        if display: sys.stdout.write(generated)
+        if display: sys.stdout.write("\n".join(generated))
 
         for i in range(seq_length):
             x = np.zeros((1, self.seq_maxlen, len(self.dic)))
+
             for t, char in enumerate(sequence):
                 x[0, t, self.dic[char]] = 1.
 
@@ -197,12 +198,17 @@ class SequenceGenerator(object):
             next_index = _sample(preds, temperature)
             next_char = self.rev_dic[next_index]
 
-            generated += next_char
-            sequence = sequence[1:] + next_char
-            whole_sequence += next_char
+            if isinstance(sequence, (list, tuple)):
+                sequence = sequence[1:] + [next_char]
+                generated = generated + [next_char]
+                whole_sequence = generated + [next_char]
+            else:
+                sequence = sequence[1:] + next_char
+                generated += next_char
+                whole_sequence += next_char
 
             if display:
-                sys.stdout.write(next_char)
+                sys.stdout.write(next_char + "\n")
                 sys.stdout.flush()
 
         if display: print()
